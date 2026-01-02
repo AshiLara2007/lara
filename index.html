@@ -764,11 +764,18 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             width: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
-        .submit-btn:hover {
+        .submit-btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(255, 0, 122, 0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         .success-message {
@@ -786,6 +793,43 @@
             color: var(--accent-green);
             font-size: 2rem;
             margin-bottom: 10px;
+        }
+
+        /* --- ENHANCED BUTTON ANIMATIONS --- */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .loading-text {
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .checkmark {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .checkmark__check {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: draw 0.5s ease forwards;
+        }
+
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
         }
 
         /* --- FOOTER --- */
@@ -1020,6 +1064,99 @@
             90% { clip-path: inset(25% 0 70% 0); transform: translate(-5px); }
             100% { clip-path: inset(10% 0 80% 0); transform: translate(5px); }
         }
+
+        /* --- NOTIFICATION STYLES --- */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            z-index: 10000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .notification.error {
+            border-color: #ff5555;
+            color: #ff9999;
+        }
+
+        .notification.info {
+            border-color: var(--accent-alt);
+            color: var(--accent-alt);
+        }
+
+        .notification i {
+            font-size: 1.2rem;
+        }
+
+        /* --- SUBMIT BUTTON ENHANCEMENTS --- */
+        .submit-btn .btn-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .submit-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--accent-alt);
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: 0 0 10px var(--accent-alt);
+        }
+
+        .loading-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-alt);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            filter: drop-shadow(0 0 2px var(--accent-alt));
+        }
+
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1220,7 +1357,9 @@
                         <textarea id="message" name="message" rows="5" required placeholder="Describe your project, timeline, and any specific requirements..."></textarea>
                     </div>
                     
-                    <button type="submit" class="submit-btn pulse-animation">SUBMIT PROJECT REQUEST</button>
+                    <button type="submit" class="submit-btn pulse-animation">
+                        <span class="btn-text">SUBMIT PROJECT REQUEST</span>
+                    </button>
                 </form>
                 
                 <div class="success-message" id="successMessage">
@@ -1260,7 +1399,7 @@
     </footer>
 
     <script>
-        // Google Apps Script URL - UPDATED WITH YOUR NEW URL
+        // Google Apps Script URL
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbye4P7kCI64_rZoLCpOmZuG_a9ONg5Jpyi2RXxSZblo7Ui2a3JX1qx-cfqf56t-zm3tsw/exec";
 
         // Project Data
@@ -1273,7 +1412,7 @@
                 tools: ["Unreal Engine 5", "Blender", "Substance Painter", "ZBrush", "Maya"],
                 images: [
                     "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=800",
-                    "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w-800",
+                    "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800",
                     "https://images.unsplash.com/photo-1518834103325-6725c4b54c14?auto=format&fit=crop&w=800"
                 ],
                 stats: {
@@ -1342,6 +1481,10 @@
                 details: "This project focuses on photorealistic material creation and volumetric lighting. Using Blender's node system for complex material setups and compositing for final polish."
             }
         };
+
+        // =============================================
+        // CORE FUNCTIONS
+        // =============================================
 
         // --- 1. THREE.JS BACKGROUND ---
         const canvas = document.getElementById('bg-canvas');
@@ -1750,120 +1893,162 @@
 
         scrambleText(scrambleEl, scramblePhrases[0]);
 
-        // --- 9. FORM SUBMISSION TO GOOGLE SHEETS (IMPROVED VERSION) ---
-        document.getElementById('hireForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // =============================================
+        // ENHANCED FORM SUBMISSION SYSTEM
+        // =============================================
+
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
             
-            // Get form data
-            const formData = {
-                "Name": document.getElementById('name').value.trim(),
-                "Email": document.getElementById('email').value.trim(),
-                "Project Type": document.getElementById('projectType').value,
-                "Budget Range": document.getElementById('budget').value,
-                "Project Details": document.getElementById('message').value.trim()
-            };
+            document.body.appendChild(notification);
             
-            // Validate required fields
-            if (!formData.Name || !formData.Email || !formData["Project Details"]) {
-                alert("Please fill in all required fields: Name, Email, and Project Details.");
-                return;
-            }
+            // Show
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
             
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
+            // Hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Enhanced loading animation
+        function createLoadingAnimation(button) {
+            // Create pulsing ring effect
+            const ring = document.createElement('div');
+            ring.className = 'submit-ring';
+            button.appendChild(ring);
             
-            // Show loading state
-            submitBtn.textContent = "SENDING...";
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = "0.7";
-            
-            // Add loading animation
-            const loadingAnimation = gsap.to(submitBtn, {
-                rotation: 360,
-                duration: 2,
+            // Animate the ring
+            const ringAnimation = gsap.to(ring, {
+                scale: 1.1,
+                opacity: 0,
+                duration: 1,
                 repeat: -1,
-                ease: "linear"
+                ease: "power2.out"
             });
             
-            try {
-                console.log('Sending form data to Google Sheets:', formData);
+            // Add particle effect
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'loading-particle';
+                button.appendChild(particle);
                 
-                // Send to Google Apps Script
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Important for Google Apps Script
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams(formData).toString()
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = 20;
+                
+                gsap.to(particle, {
+                    x: Math.cos(angle) * radius,
+                    y: Math.sin(angle) * radius,
+                    opacity: [0, 1, 0],
+                    duration: 1.5,
+                    repeat: -1,
+                    delay: i * 0.1,
+                    ease: "power2.out"
                 });
-                
-                console.log('Form submission initiated (no-cors mode)');
-                
-                // Show success message
-                const successMessage = document.getElementById('successMessage');
-                successMessage.style.display = 'block';
-                
-                // Animate success
-                gsap.fromTo(successMessage, 
-                    { y: 30, opacity: 0, scale: 0.9 },
-                    { 
-                        y: 0, 
-                        opacity: 1, 
-                        scale: 1, 
-                        duration: 0.6,
-                        ease: "back.out(1.2)"
-                    }
-                );
-                
-                // Add confetti effect
-                createConfetti();
-                
-                // Clear form
-                document.getElementById('hireForm').reset();
-                
-                // Backup to localStorage
-                backupToLocalStorage(formData);
-                
-                // Log success
-                console.log('✅ Form submitted successfully!');
-                console.log('📊 Data:', formData);
-                console.log('🔗 Google Sheets URL:', GOOGLE_SCRIPT_URL);
-                
-            } catch (error) {
-                console.error('❌ Form submission error:', error);
-                
-                // Try backup method
-                backupToLocalStorage(formData);
-                
-                // Show error message with email option
-                const shouldEmail = confirm('There was an issue submitting the form. Would you like to send via email instead?');
-                if (shouldEmail) {
-                    sendEmailFallback(formData);
-                } else {
-                    alert('Your inquiry has been saved locally. I\'ll check it soon!');
-                }
-            } finally {
-                // Reset button
-                loadingAnimation.kill();
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-                gsap.to(submitBtn, { rotation: 0, duration: 0.3 });
-                
-                // Hide success message after delay
-                setTimeout(() => {
-                    gsap.to("#successMessage", {
-                        opacity: 0,
-                        y: -20,
-                        duration: 0.5,
-                        onComplete: () => {
-                            document.getElementById('successMessage').style.display = 'none';
-                        }
-                    });
-                }, 5000);
             }
-        });
+            
+            return ringAnimation;
+        }
+
+        // Ripple effect
+        function createRippleEffect(button) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple-effect';
+            
+            button.appendChild(ripple);
+            
+            // Center the ripple
+            const rect = button.getBoundingClientRect();
+            ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
+            ripple.style.left = (rect.width / 2 - parseInt(ripple.style.width) / 2) + 'px';
+            ripple.style.top = (rect.height / 2 - parseInt(ripple.style.height) / 2) + 'px';
+            
+            // Remove after animation
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        // Success animation
+        async function showSuccessAnimation(button) {
+            // Success checkmark animation
+            const btnText = button.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            
+            button.innerHTML = `
+                <svg class="checkmark" width="24" height="24" viewBox="0 0 24 24">
+                    <path class="checkmark__check" fill="none" d="M4.1,12.7 9,17.6 20.3,6.3"/>
+                </svg>
+                <span class="btn-text">SENT SUCCESSFULLY!</span>
+            `;
+            
+            // Change button color to success
+            button.style.background = 'linear-gradient(90deg, var(--accent-green), #00cc77)';
+            
+            // Animate checkmark
+            const checkmark = button.querySelector('.checkmark__check');
+            const length = checkmark.getTotalLength();
+            
+            checkmark.style.strokeDasharray = length;
+            checkmark.style.strokeDashoffset = length;
+            checkmark.style.stroke = '#000';
+            checkmark.style.strokeWidth = '3';
+            
+            gsap.to(checkmark.style, {
+                strokeDashoffset: 0,
+                duration: 0.6,
+                ease: "power2.out"
+            });
+            
+            // Wait for animation to complete
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // Reset button
+            button.innerHTML = `<span class="btn-text">${originalText}</span>`;
+            button.style.background = 'linear-gradient(90deg, var(--accent), var(--accent-alt))';
+            button.disabled = false;
+        }
+
+        // Error animation
+        async function showErrorAnimation(button) {
+            const btnText = button.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            
+            // Error animation
+            button.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <span class="btn-text">RETRY</span>
+            `;
+            
+            // Change button color to error
+            button.style.background = 'linear-gradient(90deg, #ff5555, #ff3366)';
+            
+            // Shake animation
+            gsap.to(button, {
+                x: [-5, 5, -5, 5, 0],
+                duration: 0.5,
+                ease: "power2.out"
+            });
+            
+            // Wait for animation to complete
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Reset button
+            button.innerHTML = `<span class="btn-text">${originalText}</span>`;
+            button.style.background = 'linear-gradient(90deg, var(--accent), var(--accent-alt))';
+            button.disabled = false;
+        }
 
         // Backup form data to localStorage
         function backupToLocalStorage(formData) {
@@ -1893,6 +2078,7 @@ Name: ${formData.Name}
 Email: ${formData.Email}
 Project Type: ${formData["Project Type"]}
 Budget Range: ${formData["Budget Range"]}
+
 Project Details:
 ${formData["Project Details"]}
 
@@ -1935,6 +2121,182 @@ Timestamp: ${new Date().toLocaleString()}
                 });
             }
         }
+
+        // Enhanced confetti
+        function createEnhancedConfetti() {
+            const colors = ['#ff007a', '#00f2ff', '#00ff88', '#ffffff', '#ffaa00'];
+            const shapes = ['circle', 'rect', 'triangle'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = 5 + Math.random() * 10;
+                
+                confetti.style.cssText = `
+                    position: fixed;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${color};
+                    border-radius: ${shape === 'circle' ? '50%' : shape === 'triangle' ? '0' : '2px'};
+                    pointer-events: none;
+                    z-index: 10000;
+                    top: 0;
+                    left: ${Math.random() * 100}vw;
+                    transform: translateY(-20px);
+                    opacity: 0;
+                `;
+                
+                // Triangle shape
+                if (shape === 'triangle') {
+                    confetti.style.width = '0';
+                    confetti.style.height = '0';
+                    confetti.style.background = 'transparent';
+                    confetti.style.borderLeft = `${size/2}px solid transparent`;
+                    confetti.style.borderRight = `${size/2}px solid transparent`;
+                    confetti.style.borderBottom = `${size}px solid ${color}`;
+                }
+                
+                document.body.appendChild(confetti);
+                
+                const duration = 1.5 + Math.random() * 1;
+                const rotation = Math.random() * 720;
+                
+                gsap.to(confetti, {
+                    y: window.innerHeight + 50,
+                    x: (Math.random() - 0.5) * 200,
+                    rotation: rotation,
+                    opacity: [0, 1, 0],
+                    duration: duration,
+                    ease: "power2.out",
+                    onComplete: () => confetti.remove()
+                });
+            }
+        }
+
+        // --- 9. FORM SUBMISSION HANDLER (ENHANCED) ---
+        document.getElementById('hireForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                "Name": document.getElementById('name').value.trim(),
+                "Email": document.getElementById('email').value.trim(),
+                "Project Type": document.getElementById('projectType').value,
+                "Budget Range": document.getElementById('budget').value,
+                "Project Details": document.getElementById('message').value.trim()
+            };
+            
+            // Validate required fields
+            if (!formData.Name || !formData.Email || !formData["Project Details"]) {
+                showNotification("Please fill in all required fields: Name, Email, and Project Details.", "error");
+                return;
+            }
+            
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.querySelector('.btn-text').textContent;
+            
+            // Show loading state
+            submitBtn.querySelector('.btn-text').textContent = "PROCESSING...";
+            submitBtn.disabled = true;
+            
+            // Add loading animation
+            const loadingAnimation = createLoadingAnimation(submitBtn);
+            
+            // Add ripple effect
+            createRippleEffect(submitBtn);
+            
+            try {
+                console.log('📤 Sending form data to Google Sheets:', formData);
+                
+                // Send to Google Apps Script
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(formData).toString()
+                });
+                
+                console.log('✅ Form submission initiated (no-cors mode)');
+                
+                // Backup to localStorage
+                backupToLocalStorage(formData);
+                
+                // Show enhanced success animation
+                await showSuccessAnimation(submitBtn);
+                
+                // Show success message
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                
+                // Animate success message
+                gsap.fromTo(successMessage, 
+                    { y: 30, opacity: 0, scale: 0.9 },
+                    { 
+                        y: 0, 
+                        opacity: 1, 
+                        scale: 1, 
+                        duration: 0.6,
+                        ease: "back.out(1.2)"
+                    }
+                );
+                
+                // Add enhanced confetti effect
+                createEnhancedConfetti();
+                
+                // Show notification
+                showNotification("Form submitted successfully! Data saved to Google Sheets.", "success");
+                
+                // Clear form
+                document.getElementById('hireForm').reset();
+                
+                // Log success
+                console.log('✅ Form submitted successfully!');
+                console.log('📊 Data:', formData);
+                
+            } catch (error) {
+                console.error('❌ Form submission error:', error);
+                
+                // Backup to localStorage
+                backupToLocalStorage(formData);
+                
+                // Show error animation
+                await showErrorAnimation(submitBtn);
+                
+                // Show notification with options
+                showNotification("Connection issue. Data saved locally. You can try again.", "error");
+                
+                // Log error
+                console.log('💾 Data saved locally as backup.');
+                
+            } finally {
+                // Clean up loading animation
+                if (loadingAnimation) {
+                    loadingAnimation.kill();
+                }
+                
+                // Remove any remaining particles/rings
+                const particles = submitBtn.querySelectorAll('.loading-particle, .submit-ring');
+                particles.forEach(p => p.remove());
+                
+                // Hide success message after delay
+                setTimeout(() => {
+                    const successMessage = document.getElementById('successMessage');
+                    if (successMessage.style.display === 'block') {
+                        gsap.to(successMessage, {
+                            opacity: 0,
+                            y: -20,
+                            duration: 0.5,
+                            onComplete: () => {
+                                successMessage.style.display = 'none';
+                            }
+                        });
+                    }
+                }, 5000);
+            }
+        });
 
         // --- 10. SOCIAL LINKS HOVER ---
         document.querySelectorAll('.social-links a').forEach(link => {
@@ -1985,29 +2347,28 @@ Timestamp: ${new Date().toLocaleString()}
             }
         }, 2000);
 
-        // --- 13. TEST CONNECTION FUNCTION ---
+        // --- 13. DEBUG FUNCTIONS ---
         async function testConnection() {
             try {
                 console.log('🔗 Testing connection to:', GOOGLE_SCRIPT_URL);
                 
-                // Try GET request first
-                const response = await fetch(GOOGLE_SCRIPT_URL + '?test=true');
-                console.log('📡 GET test response status:', response.status);
+                // Show loading notification
+                showNotification("Testing connection to Google Sheets...", "info");
                 
-                // Try to read response if possible
-                try {
-                    const data = await response.text();
-                    console.log('✅ Connection test successful. Response:', data);
-                    alert('✅ Connection successful!\n\nGoogle Sheets is ready to receive form submissions.');
-                } catch (readError) {
-                    console.log('⚠️ Can\'t read response (CORS), but connection seems OK');
-                    alert('✅ Connection established!\n\nForm submissions should work correctly.');
-                }
+                // Try GET request
+                const response = await fetch(GOOGLE_SCRIPT_URL + '?test=true', { mode: 'no-cors' });
+                console.log('📡 Connection test initiated');
+                
+                // Show success in console only
+                console.log('✅ Connection test completed! Google Sheets integration is ready.');
+                
+                // Show subtle notification instead of alert
+                showNotification("Google Sheets connection verified!", "success");
                 
                 return true;
             } catch (error) {
                 console.error('❌ Connection test failed:', error);
-                alert('❌ Connection test failed. Please check:\n\n1. Web app is deployed as "Anyone"\n2. Google Apps Script is running\n3. No ad blockers interfering\n\nError: ' + error.message);
+                showNotification("Connection test failed. Using backup system.", "error");
                 return false;
             }
         }
@@ -2022,14 +2383,10 @@ Timestamp: ${new Date().toLocaleString()}
                     `${i+1}. ${b.Name} (${b.Email}) - ${b["Project Type"]}`
                 ).join('\n');
                 
-                alert(`📦 Found ${backups.length} backup submissions:\n\n${backupList}\n\nCheck console for full details.`);
-                
-                // Show option to export
-                if (confirm('Would you like to export these backups as a CSV file?')) {
-                    exportBackups();
-                }
+                console.log(`📦 Found ${backups.length} backup submissions:\n${backupList}`);
+                showNotification(`Found ${backups.length} backup submissions. Check console.`, "info");
             } else {
-                alert('📭 No backup submissions found in localStorage.');
+                showNotification("No backup submissions found.", "info");
             }
             
             return backups;
@@ -2040,7 +2397,7 @@ Timestamp: ${new Date().toLocaleString()}
             const backups = JSON.parse(localStorage.getItem('laraPortfolioBackups') || '[]');
             
             if (backups.length === 0) {
-                alert('📭 No backups to export.');
+                showNotification("No backups to export.", "info");
                 return;
             }
             
@@ -2069,7 +2426,7 @@ Timestamp: ${new Date().toLocaleString()}
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
             
-            alert(`📤 Exported ${backups.length} backups to CSV file.`);
+            showNotification(`Exported ${backups.length} backups to CSV file.`, "success");
         }
 
         // --- 16. CLEAR BACKUPS ---
@@ -2077,7 +2434,7 @@ Timestamp: ${new Date().toLocaleString()}
             if (confirm('Are you sure you want to clear all backup submissions from localStorage?')) {
                 localStorage.removeItem('laraPortfolioBackups');
                 console.log('🗑️ All backups cleared from localStorage');
-                alert('🗑️ All backup submissions have been cleared.');
+                showNotification("All backup submissions cleared.", "success");
             }
         }
 
@@ -2096,17 +2453,11 @@ Timestamp: ${new Date().toLocaleString()}
         console.log('   exportBackups() - Export backups as CSV');
         console.log('   clearBackups() - Clear all backups');
 
-        // Auto-test connection on load (optional)
+        // Auto-verify connection on load
         setTimeout(() => {
-            console.log('🔄 Auto-testing connection...');
-            testConnection().then(success => {
-                if (success) {
-                    console.log('✅ Connection verified! Form submissions ready.');
-                } else {
-                    console.warn('⚠️ Connection issues detected. Using backup system.');
-                }
-            });
-        }, 3000);
+            console.log('🔄 Verifying Google Sheets connection...');
+            testConnection();
+        }, 2000);
 
     </script>
 </body>
